@@ -15,6 +15,7 @@ export const PostList = () => (
     <Datagrid rowClick="show">
       <TextField source="_id" />
       <TextField source="location" />
+      <TextField source="location" />
       <TextField source="phone" />
       <TextField source="name" />
       <TextField source="description" />
