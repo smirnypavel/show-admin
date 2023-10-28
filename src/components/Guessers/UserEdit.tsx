@@ -29,7 +29,7 @@ export const UserEdit = () => (
       <TextInput source="firstName" />
       <TextInput source="lastName" />
       <TextInput source="telegram" />
-      <DateInput source="price" />
+      <TextInput source="price" />
       <TextInput source="description" />
       <TextInput source="title" />
       <TextInput source="viber" />

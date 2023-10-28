@@ -11,6 +11,7 @@ import {
   TextField,
   UrlField,
 } from "react-admin";
+import { UserInfo } from "./UserInfo";
 
 export const UserShow = () => (
   <Show>
@@ -19,15 +20,14 @@ export const UserShow = () => (
         source="_id"
         reference="s"
       />
-      <EmailField source="email" />
-      <TextField source="password" />
-      <TextField source="phone" />
+      {/* <EmailField source="email" />
+      <TextField source="phone" />  */}
+      <UserInfo />
       <TextField source="location" />
       <TextField source="master_photo" />
       <BooleanField source="isOnline" />
       <BooleanField source="paid" />
       <BooleanField source="trial" />
-      <TextField source="token" />
       <BooleanField source="verify" />
       <BooleanField source="ban" />
       <TextField source="genre" />

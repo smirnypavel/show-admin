@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://events-show.cyclic.app/";
+// const API_BASE_URL = "https://events-show.cyclic.app/";
+const API_BASE_URL = "https://events-4qv2.onrender.com";
 
 export const getUsers = async () => {
   const response = await axios.get(`${API_BASE_URL}/users`);
