@@ -1,42 +1,54 @@
-// import * as React from "react";
-// import { useState } from "react";
-// import { useLogin, useNotify, Notification } from "react-admin";
+import React, { useState } from "react";
+import { useTranslate, TextInput, Button, useAuthProvider } from "react-admin";
+import myAuthProvider from "@/utils/authProvider"; // Импортируем ваш myAuthProvider
 
-// const MyLoginPage = () => {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-//   const login = useLogin();
-//   const notify = useNotify();
+const Login = () => {
+  const [credentials, setCredentials] = useState({
+    username: "", // Изменили ключ с username на email
+    password: "",
+  });
+  const translate = useTranslate();
+  const authProvider = useAuthProvider();
 
-//   const handleSubmit = (e: { preventDefault: () => void }) => {
-//     e.preventDefault();
-//     // will call authProvider.login({ email, password })
-//     login({ email, password }).catch(() => notify("Invalid email or password"));
-//   };
+  const handleSubmit = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    authProvider
+      .login({ username: credentials.username, password: credentials.password }) // Используем email вместо username
+      .then(() => {
+        console.log("Успешная аутентификация");
+      })
+      .catch(() => {
+        console.error("Ошибка аутентификации");
+      });
+  };
 
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <input
-//         name="email"
-//         type="email"
-//         value={email}
-//         onChange={(e) => setEmail(e.target.value)}
-//       />
-//       <input
-//         name="password"
-//         type="password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//       />
-//     </form>
-//   );
-// };
-
-// export default MyLoginPage;
-import React from "react";
-
-const login = () => {
-  return <div>login</div>;
+  return (
+    <div>
+      <h2>{translate("auth.sign_in")}</h2>
+      <form onSubmit={handleSubmit}>
+        <TextInput
+          label={translate("auth.email")} // Изменили название поля на "Email"
+          type="email" // Используем тип "email"
+          onChange={(e) =>
+            setCredentials({ ...credentials, username: e.target.value })
+          } // Изменили ключ с username на email
+          source={""}
+        />
+        <TextInput
+          label={translate("auth.password")}
+          type="password"
+          onChange={(e) =>
+            setCredentials({ ...credentials, password: e.target.value })
+          }
+          source={""}
+        />
+        <Button
+          type="submit"
+          label={translate("auth.sign_in")}
+        />
+      </form>
+    </div>
+  );
 };
 
-export default login;
+export default Login;
