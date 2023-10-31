@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useTranslate, TextInput, Button, useAuthProvider } from "react-admin";
-import myAuthProvider from "@/utils/authProvider"; // Импортируем ваш myAuthProvider
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
