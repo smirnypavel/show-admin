@@ -11,7 +11,7 @@ import {
 } from "react-admin";
 
 export const PostList = () => (
-  <List>
+  <List title="All posts">
     <Datagrid rowClick="show">
       <TextField source="_id" />
       <TextField source="location" />

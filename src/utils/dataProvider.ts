@@ -6,6 +6,7 @@ interface Params {
   pagination: any;
   sort: any;
   filter: any;
+  phone: string | number;
 }
 
 const addIdToData = (data: any[]) => {
@@ -41,12 +42,32 @@ const dataProvider = {
       let data: any[] = [];
       if (resource === "users") {
         data = await getUsers();
-        if (Array.isArray(data)) {
-          data = processUsers(data);
-          data = addIdToData(data);
-        } else {
-          data = []; // если данные не являются массивом, вернем пустой массив
+
+        // Apply filters based on firstName, lastName, and _id
+        if (params.filter) {
+          if (params.filter.firstName) {
+            data = data.filter((user) =>
+              user.firstName
+                .toLowerCase()
+                .includes(params.filter.firstName.toLowerCase())
+            );
+          }
+          if (params.filter.lastName) {
+            data = data.filter((user) =>
+              user.lastName
+                .toLowerCase()
+                .includes(params.filter.lastName.toLowerCase())
+            );
+          }
+          if (params.filter._id) {
+            data = data.filter((user) => user._id === params.filter._id);
+          }
         }
+
+        data = processUsers(data);
+        data = addIdToData(data);
+
+        return { data, total: data.length };
       } else if (resource === "posts") {
         data = await getPosts();
         if (Array.isArray(data)) {

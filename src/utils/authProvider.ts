@@ -46,6 +46,7 @@ const myAuthProvider = {
     const authData: IUserAuth | null = JSON.parse(
       localStorage.getItem("auth") || "null"
     );
+    console.log(authData);
     if (authData && authData.token) {
       const { token } = authData;
       return axios
