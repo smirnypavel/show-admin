@@ -46,9 +46,15 @@ const Welcome = () => {
             }}>
             <Button
               variant="contained"
-              href="https://marmelab.com/react-admin"
+              href="https://marmelab.com/react"
               startIcon={<HomeIcon />}>
               {translate("pos.dashboard.welcome.ra_button")}
+            </Button>
+            <Button
+              variant="contained"
+              href="https://marmelab.com/react"
+              startIcon={<HomeIcon />}>
+              пойти на хуй
             </Button>
             <Button
               variant="contained"
