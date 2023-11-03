@@ -1,9 +1,12 @@
 import { IUserAuth } from "@/types/IAuth";
 import axios from "axios";
+import { AuthProvider, UserIdentity } from "react-admin";
+// import { UserIdentity } from "ra-core";
 
 const API_BASE_URL = "https://events-4qv2.onrender.com";
 
-const myAuthProvider = {
+let userData: IUserAuth | null = null; // Переменная для хранения данных пользователя
+const myAuthProvider: AuthProvider = {
   initInterceptor: () => {
     // Добавляем Interceptor для обработки ошибок 401
     axios.interceptors.response.use(
@@ -14,15 +17,17 @@ const myAuthProvider = {
         // Проверяем, если ошибка 401
         if (error.response && error.response.status === 401) {
           // Пытаемся обновить токен
-          return myAuthProvider.refreshAccessToken().then((newToken) => {
-            // Если обновление токена успешно, повторяем запрос
-            const originalRequest = error.config;
-            if (newToken) {
-              originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-            }
+          return myAuthProvider
+            .refreshAccessToken()
+            .then((newToken: string) => {
+              // Если обновление токена успешно, повторяем запрос
+              const originalRequest = error.config;
+              if (newToken) {
+                originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+              }
 
-            return axios(originalRequest);
-          });
+              return axios(originalRequest);
+            });
         }
         return Promise.reject(error);
       }
@@ -34,6 +39,7 @@ const myAuthProvider = {
       .then((response) => {
         if (response.status === 200) {
           const { token } = response.data;
+          userData = response.data;
           localStorage.setItem("auth", JSON.stringify({ token }));
           // Добавляем токен к заголовкам Axios
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -87,7 +93,7 @@ const myAuthProvider = {
     if (authData && authData.token) {
       const { token } = authData;
       return axios
-        .post(
+        .patch(
           `${API_BASE_URL}/users/refresh`,
           {},
           {
@@ -106,6 +112,20 @@ const myAuthProvider = {
       return Promise.reject(
         new Error("Не удалось получить данные аутентификации")
       );
+    }
+  },
+  getIdentity: (): Promise<UserIdentity> => {
+    if (userData) {
+      // If there are user data, return them
+      return Promise.resolve({
+        id: userData.id,
+        fullName: userData.firstName,
+        avatar: userData.master_photo,
+        // ... other user properties
+      });
+    } else {
+      // If there is no user data, handle the error case appropriately
+      return Promise.reject(new Error("User data not available"));
     }
   },
 };
