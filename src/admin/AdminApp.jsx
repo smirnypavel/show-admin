@@ -7,20 +7,12 @@ import { UserEdit } from "@/components/Guessers/UserEdit";
 import { UserShow } from "@/components/Guessers/ShowUser/ShowUser";
 import { PostShow } from "@/components/Guessers/PostShow/PostShow";
 import myAuthProvider from "@/utils/authProvider";
-import Dashboard from "@/Dashboard";
-import { MyAppBar } from "@/MyAppBar";
+import Dashboard from "@/dashboard/MyDashboard";
+// import { MyAppBar } from "@/MyAppBar";
 import PeopleIcon from "@mui/icons-material/People";
 import BookIcon from "@mui/icons-material/Book";
-// import MyLayout from "@/MyLayout/MyLayout";
-import { MyMenu } from "@/components/MyMenu/MyMenu";
+import { MyLayout } from "@/layout";
 
-const MyLayout = (props) => (
-  <Layout
-    {...props}
-    appBar={MyAppBar}
-    menu={MyMenu}
-  />
-);
 const AdminApp = () => {
   return (
     <Admin

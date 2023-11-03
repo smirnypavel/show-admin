@@ -17,6 +17,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/admin/Dashboard.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "src/admin/Dashboard.js",
+    "src/layout/MyLayout.js"
+  ],
   "exclude": ["node_modules"]
 }
