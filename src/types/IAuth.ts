@@ -7,6 +7,7 @@ export interface IAuthState {
 }
 export interface IUserAuth {
   _id: string;
+  role: "superAdmin" | "admin" | "moderator";
   id: string;
   email: string;
   password: string;
@@ -49,4 +50,14 @@ export interface ICategory {
 export interface ISubcategory {
   id: string;
   name: string;
+}
+export interface IAdmin {
+  _id: string;
+  username: string;
+  password: string;
+  avatar: string;
+  role: string;
+  token: string;
+  createdAt: string;
+  updatedAt: string;
 }

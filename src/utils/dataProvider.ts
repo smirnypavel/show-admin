@@ -1,5 +1,13 @@
 // import { IUserAuth } from "@/types/IAuth";
-import { getUsers, getPosts, getUserById, getPostById } from "./api";
+import {
+  getUsers,
+  getPosts,
+  getUserById,
+  getPostById,
+  updateUser,
+  createUser,
+  getAdmins,
+} from "./api";
 
 interface Params {
   id: string;
@@ -35,6 +43,12 @@ const processPosts = (posts: any[]) => {
     return post;
   });
 };
+const processAdmins = (admins: any[]) => {
+  return admins.map((admin) => {
+    // Обработайте вложенные объекты, если необходимо
+    return admin;
+  });
+};
 
 const dataProvider = {
   getList: async (resource: string, params: Params) => {
@@ -42,7 +56,6 @@ const dataProvider = {
       let data: any[] = [];
       if (resource === "users") {
         data = await getUsers();
-
         // Apply filters based on firstName, lastName, and _id
         if (params.filter) {
           if (params.filter.firstName) {
@@ -76,6 +89,25 @@ const dataProvider = {
         } else {
           data = []; // если данные не являются массивом, вернем пустой массив
         }
+      } else if (resource === "admins") {
+        data = await getAdmins();
+        // Примените фильтры, если они предоставлены в params.filter
+        if (params.filter) {
+          // Пример: фильтрация по имени администратора
+          if (params.filter.name) {
+            data = data.filter((admin) =>
+              admin.name
+                .toLowerCase()
+                .includes(params.filter.name.toLowerCase())
+            );
+          }
+          // Добавьте другие фильтры, если необходимо
+        }
+
+        data = processAdmins(data);
+        data = addIdToData(data);
+
+        return { data, total: data.length };
       }
       return { data, total: data.length };
     } catch (error) {
@@ -90,6 +122,7 @@ const dataProvider = {
       if (resource === "users" && params.id) {
         const user = await getUserById(params.id);
         // Обработайте вложенные объекты, если необходимо
+        // console.log(user, "user");
         return { data: user };
       } else if (resource === "posts" && params.id) {
         const post = await getPostById(params.id);
@@ -118,6 +151,38 @@ const dataProvider = {
       console.error("Error fetching multiple items:", error);
       return { data: [], error: "Failed to fetch items" };
     }
+  },
+  update: async (resource: string, params: any) => {
+    if (resource === "users" && params.data) {
+      try {
+        const updatedUser = await updateUser(params.id, params.data);
+        return { data: updatedUser };
+      } catch (error) {
+        console.error("Error updating user:", error);
+        return { error: "Failed to update user" };
+      }
+    }
+    // Добавьте обработку для других ресурсов, если необходимо
+    return { error: "Invalid resource" };
+  },
+  create: async (resource: string, params: any) => {
+    console.log("Create function is called");
+    console.log(params);
+    if (resource === "admins" && params.data) {
+      try {
+        console.log("Trying to create user"); // Добавьте эту строку
+        // Вызываем функцию для создания пользователя
+        const createdUser = await createUser(params.data);
+        console.log(createdUser, "ответ от бека");
+        // Проверьте, что createdUser содержит созданные данные пользователя
+        return { data: createdUser }; // Убедитесь, что возвращается объект с ключом 'data'
+      } catch (error) {
+        console.error("Error creating user:", error);
+        return { error: "Failed to create user" };
+      }
+    }
+    // Добавьте обработку для других ресурсов, если необходимо
+    return { error: "Invalid resource" }; // Обязательно возвращайте объект с ключом 'error', если ресурс недопустим
   },
 
   // Другие методы dataProvider могут быть добавлены здесь

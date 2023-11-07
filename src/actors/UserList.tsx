@@ -12,9 +12,11 @@ import {
   ChipField,
   Identifier,
   Filter, // Import the Filter component
-  TextInput, // Import TextInput for text input field
+  TextInput,
+  SimpleList,
+  ReferenceField,
 } from "react-admin";
-
+import { useMediaQuery, Theme } from "@mui/material";
 interface AvatarFieldProps {
   record?: RaRecord;
   source?: string;
@@ -41,7 +43,6 @@ const UserFilter: React.FC = (props) => (
 
 const AvatarField: React.FC<AvatarFieldProps> = ({ record, source }) => {
   const hasValidSource = record && source && record[source];
-
   return (
     <div
       style={{
@@ -65,32 +66,42 @@ const AvatarField: React.FC<AvatarFieldProps> = ({ record, source }) => {
   );
 };
 
-export const CustomUserList: React.FC = () => (
-  <List
-    title="All Users"
-    filters={<UserFilter />}>
-    <Datagrid rowClick="show">
-      <FunctionField
-        label="Avatar"
-        render={(record: RaRecord<Identifier> | undefined) => (
-          <AvatarField
-            record={record}
-            source="master_photo"
+export const CustomUserList: React.FC = () => {
+  const isSmall = useMediaQuery<Theme>((theme) => theme.breakpoints.down("sm"));
+  return (
+    <List
+      title="All Users"
+      filters={<UserFilter />}>
+      {isSmall ? (
+        <SimpleList
+          primaryText={(record) => record.firstName}
+          secondaryText={(record) => record.lastName}
+          tertiaryText={(record) => record.email}
+        />
+      ) : (
+        <Datagrid rowClick="show">
+          <FunctionField
+            label="Avatar"
+            render={(record: RaRecord<Identifier> | undefined) => (
+              <AvatarField
+                record={record}
+                source="master_photo"
+              />
+            )}
           />
-        )}
-      />
-      <TextField source="firstName" />
-      <TextField source="lastName" />
-      <TextField source="" />
-      <BooleanField source="paid" />
-      <BooleanField source="trial" />
-      <BooleanField source="verify" />
-      <BooleanField source="ban" />
-      <ArrayField source="category">
-        <SingleFieldList>
-          <ChipField source="name" />
-        </SingleFieldList>
-      </ArrayField>
-    </Datagrid>
-  </List>
-);
+          <TextField source="firstName" />
+          <TextField source="lastName" />
+          <BooleanField source="paid" />
+          <BooleanField source="trial" />
+          <BooleanField source="verify" />
+          <BooleanField source="ban" />
+          <ArrayField source="category">
+            <SingleFieldList>
+              <ChipField source="name" />
+            </SingleFieldList>
+          </ArrayField>
+        </Datagrid>
+      )}
+    </List>
+  );
+};

@@ -52,5 +52,63 @@ export const getPostById = async (postId: string) => {
     return null;
   }
 };
+export const updateUser = async (userId: string, userData: any) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/users/find-by-id/${userId}`,
+      userData
+    );
+    if (response.data) {
+      const updatedUserWithId = { ...response.data, id: response.data._id };
+      return updatedUserWithId;
+    }
+    throw new Error("User not found");
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return null;
+  }
+};
+export const getCategories = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/users/category`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    throw new Error("Failed to fetch categories");
+  }
+};
+
+// Admin interface
+
+export const getAdmins = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/admin/find`);
+    // Добавляем id к каждому пользователю в ответе
+    const adminWithId = response.data.map((admin: any) => ({
+      ...admin,
+      id: admin._id,
+    }));
+    return adminWithId;
+  } catch (error) {
+    console.error("Error fetching admins:", error);
+    throw new Error("Failed to fetch admins"); // Бросаем ошибку для обработки в вызывающем коде
+  }
+};
+
+export const createUser = async (userData: any) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/admin`, userData);
+    if (response.data) {
+      const createdUserWithId = { ...response.data, id: response.data._id };
+
+      console.log(createdUserWithId);
+      return createdUserWithId; // Оборачиваем созданного пользователя в объект с ключом data
+    }
+    throw new Error("Failed to create user");
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return { error: "Failed to create user" }; // Возвращаем ошибку в нужном формате, если создание пользователя не удалось
+  }
+};
 
 // Другие функции для работы с API могут быть добавлены здесь

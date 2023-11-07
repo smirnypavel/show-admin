@@ -1,11 +1,11 @@
-import { IUserAuth } from "@/types/IAuth";
+import { IAdmin } from "@/types/IAuth";
 import axios from "axios";
 import { AuthProvider, UserIdentity } from "react-admin";
 // import { UserIdentity } from "ra-core";
 
 const API_BASE_URL = "https://events-4qv2.onrender.com";
 
-let userData: IUserAuth | null = null; // Переменная для хранения данных пользователя
+let userData: IAdmin | null = null; // Переменная для хранения данных пользователя
 const myAuthProvider: AuthProvider = {
   initInterceptor: () => {
     // Добавляем Interceptor для обработки ошибок 401
@@ -35,12 +35,12 @@ const myAuthProvider: AuthProvider = {
   },
   login: ({ username, password }: { username: string; password: string }) => {
     return axios
-      .post(`${API_BASE_URL}/users/login`, { email: username, password })
+      .post(`${API_BASE_URL}/admin/login`, { username, password })
       .then((response) => {
         if (response.status === 200) {
           const { token } = response.data;
           userData = response.data;
-          localStorage.setItem("auth", JSON.stringify({ token }));
+          localStorage.setItem("auth", JSON.stringify({ ...userData }));
           // Добавляем токен к заголовкам Axios
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         } else {
@@ -49,15 +49,14 @@ const myAuthProvider: AuthProvider = {
       });
   },
   logout: () => {
-    const authData: IUserAuth | null = JSON.parse(
+    const authData: IAdmin | null = JSON.parse(
       localStorage.getItem("auth") || "null"
     );
-    console.log(authData);
     if (authData && authData.token) {
       const { token } = authData;
       return axios
         .post(
-          `${API_BASE_URL}/users/logout`,
+          `${API_BASE_URL}/admin/logout`,
           {},
           {
             headers: {
@@ -83,18 +82,42 @@ const myAuthProvider: AuthProvider = {
     }
     return Promise.resolve();
   },
+  // getPermissions: () => {
+  //   return Promise.resolve(); // Разрешения для всех пользователей
+  // },
   getPermissions: () => {
-    return Promise.resolve(); // Разрешения для всех пользователей
+    // Получаем информацию о пользователе из localStorage или из другого места,
+    // где вы сохраняете данные пользователя после успешной аутентификации
+    const authData: IAdmin | null = JSON.parse(
+      localStorage.getItem("auth") || "null"
+    );
+
+    const userRole = authData?.role; // Получаем роль пользователя из объекта пользователя
+    console.log(userRole, "role");
+    // Определяем разрешения в зависимости от роли пользователя
+    if (userRole === "superadmin") {
+      return Promise.resolve(["read", "write", "admin"]);
+    }
+    if (userRole === "admin") {
+      return Promise.resolve(["read"]);
+    }
+    if (userRole === "moderator") {
+      return Promise.resolve(["read"]);
+    }
+
+    // Если роль неизвестна или не указана, можно вернуть пустой массив разрешений или выбросить ошибку
+    // return Promise.resolve([]);
+    return Promise.reject(new Error("Неизвестная роль пользователя"));
   },
   refreshAccessToken: () => {
-    const authData: IUserAuth | null = JSON.parse(
+    const authData: IAdmin | null = JSON.parse(
       localStorage.getItem("auth") || "null"
     );
     if (authData && authData.token) {
       const { token } = authData;
       return axios
         .patch(
-          `${API_BASE_URL}/users/refresh`,
+          `${API_BASE_URL}/admin/refresh`,
           {},
           {
             headers: {
@@ -118,9 +141,9 @@ const myAuthProvider: AuthProvider = {
     if (userData) {
       // If there are user data, return them
       return Promise.resolve({
-        id: userData.id,
-        fullName: userData.firstName,
-        avatar: userData.master_photo,
+        id: userData._id,
+        fullName: userData.username,
+        avatar: userData.avatar,
         // ... other user properties
       });
     } else {
