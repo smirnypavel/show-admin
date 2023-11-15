@@ -13,11 +13,9 @@ import {
 export const PostList = () => (
   <List title="All posts">
     <Datagrid rowClick="show">
-      <TextField source="_id" />
       <TextField source="location" />
       <TextField source="phone" />
       <TextField source="name" />
-      <TextField source="description" />
       <ArrayField source="category">
         <SingleFieldList>
           <ChipField source="name" />
@@ -25,9 +23,7 @@ export const PostList = () => (
       </ArrayField>
       <BooleanField source="active" />
       <BooleanField source="verify" />
-      <NumberField source="sms" />
       <TextField source="price" />
-      <TextField source="date" />
     </Datagrid>
   </List>
 );

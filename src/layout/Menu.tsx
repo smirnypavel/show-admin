@@ -9,6 +9,9 @@ import {
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import LabelIcon from "@mui/icons-material/Label";
+import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+
 import SubMenu from "@/layout/SubMenu";
 type MenuName = "menuCatalog" | "menuSales" | "menuCustomers";
 
@@ -43,14 +46,25 @@ const MyMenu = ({ dense = false }: MenuProps) => {
         <Menu.ResourceItem name="users" />
         <Menu.ResourceItem name="posts" />
       </SubMenu>
+
       {permissions.includes("admin") && (
         <SubMenu
           handleToggle={() => handleToggle("menuCustomers")}
           isOpen={state.menuCustomers}
           name="Admin panel"
-          icon={<LabelIcon />}
+          icon={<AdminPanelSettingsIcon />}
           dense={dense}>
           <Menu.ResourceItem name="admins" />
+        </SubMenu>
+      )}
+      {permissions.includes("admin") && (
+        <SubMenu
+          handleToggle={() => handleToggle("menuCustomers")}
+          isOpen={state.menuCustomers}
+          name="Content panel"
+          icon={<DynamicFeedIcon />}
+          dense={dense}>
+          <Menu.ResourceItem name="articles" />
         </SubMenu>
       )}
     </Menu>

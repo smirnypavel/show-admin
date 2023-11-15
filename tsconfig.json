@@ -22,7 +22,9 @@
     "**/*.ts",
     "**/*.tsx",
     "src/admin/Dashboard.js",
-    "src/layout/MyLayout.js"
+    "src/layout/MyLayout.js",
+    "src/admin/AdminApp.jsx",
+    "src/utils/MyRichTextInput.jsx"
   ],
   "exclude": ["node_modules"]
 }

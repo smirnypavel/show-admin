@@ -89,11 +89,11 @@ export const CustomUserList: React.FC = () => {
               />
             )}
           />
+          <BooleanField source="verify" />
           <TextField source="firstName" />
           <TextField source="lastName" />
           <BooleanField source="paid" />
           <BooleanField source="trial" />
-          <BooleanField source="verify" />
           <BooleanField source="ban" />
           <ArrayField source="category">
             <SingleFieldList>

@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { v4 as uuidv4 } from "uuid";
+// import { v4 as uuidv4 } from "uuid";
 import {
   Create,
   SimpleForm,
@@ -39,6 +39,7 @@ const UserCreate: FC<CreateProps> = (props) => {
             { id: "superAdmin", name: "Супер-администратор" },
             { id: "admin", name: "Администратор" },
             { id: "moderator", name: "Модератор" },
+            { id: "contentManager", name: "Kонтент менеджер" },
           ]}
         />
       </SimpleForm>

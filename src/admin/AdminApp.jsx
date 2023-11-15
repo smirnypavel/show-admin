@@ -1,26 +1,32 @@
 import React from "react";
 import {
   Admin,
+  ListGuesser,
   Resource,
-  EditGuesser,
   localStorageStore,
   useStore,
   ShowGuesser,
 } from "react-admin";
-import dataProvider from "../utils/dataProvider";
-import { PostList } from "@/components/Guessers/CastomPostList";
+import dataProvider from "@/utils/dataProvider";
 import actors from "@/actors";
-import { PostShow } from "@/components/Guessers/PostShow/PostShow";
+import posts from "@/post";
 import myAuthProvider from "@/utils/authProvider";
 import Dashboard from "@/dashboard/MyDashboard";
-import BookIcon from "@mui/icons-material/Book";
 import { MyLayout, Login } from "@/layout";
-import { themes, ThemeName } from "@/themes/themes";
+import { themes } from "@/themes/themes";
+import { AppThemeName } from "@/themes/themes";
 import UserCreate from "./UserCreate";
 import AdminsList from "@/admin/AdminList";
+import { AdminShow } from "./AdminShow";
+import ArticleIcon from "@mui/icons-material/Article";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { ArticleList } from "@/article/ArticleList";
+import ArticleCreate from "@/article/ArticleCreate";
+import { ArticleShow } from "@/article/ArticleShow";
 
 const AdminApp = () => {
-  const storeValue = useStore < ThemeName > ("themeName", "soft");
+  const storeValue = useStore < AppThemeName > ("themeName", "soft");
+
   const themeName = storeValue ? storeValue : "soft";
   const lightTheme = themes.find((theme) => theme.name === themeName)?.light;
   const darkTheme = themes.find((theme) => theme.name === themeName)?.dark;
@@ -28,6 +34,7 @@ const AdminApp = () => {
 
   return (
     <Admin
+      store={store}
       requireAuth
       dataProvider={dataProvider}
       authProvider={myAuthProvider}
@@ -44,23 +51,23 @@ const AdminApp = () => {
       />
       <Resource
         name="posts"
-        list={PostList}
-        show={PostShow}
-        edit={EditGuesser}
-        icon={BookIcon}
-        // create={UserCreate}
-        // create={CreateGuesser}
+        {...posts}
       />
       <Resource
         name="admins"
         create={UserCreate}
         list={AdminsList}
-        icon={BookIcon}
-        show={ShowGuesser}
+        icon={SupervisorAccountIcon}
+        show={AdminShow}
         permissions={myAuthProvider.getPermissions}
-        recordRepresentation={(record) =>
-          `${record.first_name} ${record.last_name}`
-        }
+      />
+      <Resource
+        name="articles"
+        create={ArticleCreate}
+        list={ArticleList}
+        icon={ArticleIcon}
+        show={ArticleShow}
+        permissions={myAuthProvider.getPermissions}
       />
       {/* Другие ресурсы могут быть добавлены здесь */}
     </Admin>

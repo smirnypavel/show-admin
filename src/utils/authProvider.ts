@@ -93,7 +93,7 @@ const myAuthProvider: AuthProvider = {
     );
 
     const userRole = authData?.role; // Получаем роль пользователя из объекта пользователя
-    console.log(userRole, "role");
+
     // Определяем разрешения в зависимости от роли пользователя
     if (userRole === "superadmin") {
       return Promise.resolve(["read", "write", "admin"]);
@@ -104,6 +104,9 @@ const myAuthProvider: AuthProvider = {
     if (userRole === "moderator") {
       return Promise.resolve(["read"]);
     }
+    if (userRole === "contentManager") {
+      return Promise.resolve(["read", "write", "create"]);
+    }
 
     // Если роль неизвестна или не указана, можно вернуть пустой массив разрешений или выбросить ошибку
     // return Promise.resolve([]);
@@ -113,8 +116,10 @@ const myAuthProvider: AuthProvider = {
     const authData: IAdmin | null = JSON.parse(
       localStorage.getItem("auth") || "null"
     );
+
     if (authData && authData.token) {
       const { token } = authData;
+
       return axios
         .patch(
           `${API_BASE_URL}/admin/refresh`,
@@ -130,6 +135,16 @@ const myAuthProvider: AuthProvider = {
           const newToken = response.data.token;
           axios.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
           return newToken; // Возвращаем новый токен
+        })
+        .catch((error) => {
+          // Если при обновлении токена произошла ошибка
+          // Тут ты можешь добавить перенаправление на страницу логина
+          console.error("Ошибка при обновлении токена:", error);
+          // Пример перенаправления на страницу логина с использованием react-router
+          // Замени на свой способ перенаправления
+          // history.push("/login");
+          window.location.href = "/login"; // Пример перенаправления через изменение window.location.href
+          return Promise.reject(error);
         });
     } else {
       return Promise.reject(

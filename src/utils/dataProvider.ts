@@ -5,8 +5,17 @@ import {
   getUserById,
   getPostById,
   updateUser,
-  createUser,
+  createAdmin,
   getAdmins,
+  getAdminById,
+  deleteUsersById,
+  deletePostById,
+  deleteAdminById,
+  getArticleById,
+  getArticle,
+  updateArticle,
+  createArticle,
+  deleteArticlesById,
 } from "./api";
 
 interface Params {
@@ -49,14 +58,20 @@ const processAdmins = (admins: any[]) => {
     return admin;
   });
 };
+const processArticles = (articles: any[]) => {
+  return articles.map((article) => {
+    // Обработайте вложенные объекты, если необходимо
+    return article;
+  });
+};
 
 const dataProvider = {
   getList: async (resource: string, params: Params) => {
     try {
       let data: any[] = [];
+      let total: number = 0;
       if (resource === "users") {
         data = await getUsers();
-        // Apply filters based on firstName, lastName, and _id
         if (params.filter) {
           if (params.filter.firstName) {
             data = data.filter((user) =>
@@ -76,24 +91,21 @@ const dataProvider = {
             data = data.filter((user) => user._id === params.filter._id);
           }
         }
-
+        total = data.length;
         data = processUsers(data);
         data = addIdToData(data);
-
-        return { data, total: data.length };
       } else if (resource === "posts") {
         data = await getPosts();
         if (Array.isArray(data)) {
           data = processPosts(data);
           data = addIdToData(data);
         } else {
-          data = []; // если данные не являются массивом, вернем пустой массив
+          data = [];
         }
+        total = data.length;
       } else if (resource === "admins") {
         data = await getAdmins();
-        // Примените фильтры, если они предоставлены в params.filter
         if (params.filter) {
-          // Пример: фильтрация по имени администратора
           if (params.filter.name) {
             data = data.filter((admin) =>
               admin.name
@@ -101,57 +113,91 @@ const dataProvider = {
                 .includes(params.filter.name.toLowerCase())
             );
           }
-          // Добавьте другие фильтры, если необходимо
         }
-
+        total = data.length;
         data = processAdmins(data);
         data = addIdToData(data);
-
-        return { data, total: data.length };
+      } else if (resource === "articles") {
+        data = await getArticle();
+        if (params.filter) {
+          if (params.filter.name) {
+            data = data.filter((article) =>
+              article.name
+                .toLowerCase()
+                .includes(params.filter.name.toLowerCase())
+            );
+          }
+        }
+        total = data.length;
+        data = processArticles(data);
+        data = addIdToData(data);
       }
-      return { data, total: data.length };
+
+      return { data, total };
     } catch (error) {
       console.error("Error fetching data:", error);
       return { data: [], total: 0, error: "Failed to fetch data" };
     }
   },
-  getOne: async (resource: string, params: Params) => {
-    console.log(params.id, "1first");
 
+  getOne: async (resource: string, params: Params) => {
     try {
+      let data = null;
       if (resource === "users" && params.id) {
-        const user = await getUserById(params.id);
-        // Обработайте вложенные объекты, если необходимо
-        // console.log(user, "user");
-        return { data: user };
+        data = await getUserById(params.id);
       } else if (resource === "posts" && params.id) {
-        const post = await getPostById(params.id);
-        // Обработайте вложенные объекты, если необходимо
-        return { data: post };
+        data = await getPostById(params.id);
+      } else if (resource === "admins" && params.id) {
+        data = await getAdminById(params.id);
+      } else if (resource === "articles" && params.id) {
+        data = await getArticleById(params.id);
       }
-      return { data: null };
+      // Обработайте вложенные объекты, если необходимо
+      if (data !== null) {
+        return { data };
+      } else {
+        return { data: null, error: "Item not found" };
+      }
     } catch (error) {
       console.error("Error fetching single item:", error);
       return { data: null, error: "Failed to fetch item" };
     }
   },
+
   getMany: async (resource: string, params: { ids: string[] }) => {
     try {
+      let data = [];
       if (resource === "users") {
         const users = await Promise.all(
           params.ids.map((id) => getUserById(id))
         );
         const processedUsers = processUsers(users);
         const usersWithId = addIdToData(processedUsers);
-        return { data: usersWithId };
+        data = usersWithId;
+      } else if (resource === "posts") {
+        const posts = await Promise.all(
+          params.ids.map((id) => getPostById(id))
+        );
+        data = posts;
+      } else if (resource === "admins") {
+        const admins = await Promise.all(
+          params.ids.map((id) => getAdminById(id))
+        );
+        data = admins;
+      } else if (resource === "articles") {
+        const articles = await Promise.all(
+          params.ids.map((id) => getArticleById(id))
+        );
+        data = articles;
       }
       // Аналогично для других ресурсов, если необходимо
-      return { data: [] };
+      return { data };
     } catch (error) {
       console.error("Error fetching multiple items:", error);
       return { data: [], error: "Failed to fetch items" };
     }
   },
+
   update: async (resource: string, params: any) => {
     if (resource === "users" && params.data) {
       try {
@@ -161,28 +207,77 @@ const dataProvider = {
         console.error("Error updating user:", error);
         return { error: "Failed to update user" };
       }
+    } else if (resource === "articles" && params.data) {
+      try {
+        const updatedArticle = await updateArticle(params.id, params.data);
+        return { data: updatedArticle };
+      } catch (error) {
+        console.error("Error updating article:", error);
+        return { error: "Failed to update article" };
+      }
     }
-    // Добавьте обработку для других ресурсов, если необходимо
     return { error: "Invalid resource" };
   },
+
   create: async (resource: string, params: any) => {
-    console.log("Create function is called");
-    console.log(params);
     if (resource === "admins" && params.data) {
       try {
-        console.log("Trying to create user"); // Добавьте эту строку
-        // Вызываем функцию для создания пользователя
-        const createdUser = await createUser(params.data);
-        console.log(createdUser, "ответ от бека");
-        // Проверьте, что createdUser содержит созданные данные пользователя
-        return { data: createdUser }; // Убедитесь, что возвращается объект с ключом 'data'
+        const createdAdmin = await createAdmin(params.data);
+        return { data: createdAdmin };
       } catch (error) {
         console.error("Error creating user:", error);
         return { error: "Failed to create user" };
       }
+    } else if (resource === "articles" && params.data) {
+      try {
+        const createdArticle = await createArticle(params.data);
+        return { data: createdArticle };
+      } catch (error) {
+        console.error("Error creating article:", error);
+        return { error: "Failed to create article" };
+      }
     }
     // Добавьте обработку для других ресурсов, если необходимо
-    return { error: "Invalid resource" }; // Обязательно возвращайте объект с ключом 'error', если ресурс недопустим
+    return { error: "Invalid resource" };
+  },
+
+  deleteMany: async (resource: string, params: { ids: string[] }) => {
+    if (resource === "users") {
+      try {
+        const deletedUsers = await deleteUsersById(params.ids);
+        return { data: deletedUsers };
+      } catch (error) {
+        console.error("Error deleting users:", error);
+        return { error: "Failed to delete users" };
+      }
+    } else if (resource === "posts") {
+      try {
+        const deletedPosts = await deletePostById(params.ids);
+        return { data: deletedPosts };
+      } catch (error) {
+        console.error("Error deleting posts:", error);
+        return { error: "Failed to delete posts" };
+      }
+    } else if (resource === "admins") {
+      try {
+        const deletedAdmins = await deleteAdminById(params.ids);
+        return { data: deletedAdmins };
+      } catch (error) {
+        console.error("Error deleting admins:", error);
+        return { error: "Failed to delete admins" };
+      }
+    } else if (resource === "articles") {
+      try {
+        const deletedArticles = await deleteArticlesById(params.ids);
+        return { data: deletedArticles };
+      } catch (error) {
+        console.error("Error deleting admins:", error);
+        return { error: "Failed to delete admins" };
+      }
+    }
+
+    // Добавьте обработку для других ресурсов, если необходимо
+    return { error: "Invalid resource" };
   },
 
   // Другие методы dataProvider могут быть добавлены здесь
